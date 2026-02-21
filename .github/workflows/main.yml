@@ -1,0 +1,25 @@
+name: 24x7 YouTube Live
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"   # har 6 ghante auto start
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: sudo apt update && sudo apt install ffmpeg -y
+
+      - name: Start Stream
+        run: |
+          ffmpeg -re -stream_loop -1 -i video.mp4 \
+          -c:v libx264 -preset veryfast -b:v 1000k -maxrate 1200k -bufsize 2000k \
+          -s 854x480 -r 25 -g 50 \
+          -c:a aac -b:a 96k -ar 44100 \
+          -f flv rtmp://a.rtmp.youtube.com/live2/zhu5-cr8c-6ygg-sqst-fhsq
